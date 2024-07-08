@@ -1,423 +1,16 @@
-// import React, { useState, useEffect, useRef } from 'react';
-// import Footer from './Footer';
-// import './Reviewpage.css';
-// import { Link, useLocation } from 'react-router-dom';
-// import axios from 'axios';
-// import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-// import TwoWheelerIcon from '@mui/icons-material/TwoWheeler';
-// import Header1 from './Header';
-// import fileDownload from "js-file-download";
-
-// const Reviewpage = () => {
-//   const [editMode, setEditMode] = useState({ mobile: false, email: false });
-//   const [otpMode, setOtpMode] = useState({ mobile: false, email: false });
-//   const [profile, setProfile] = useState({
-//     name: '',
-//     address: '',
-//     state: '',
-//     mobile: '',
-//     email: '',
-//   });
-//   const [policy, setPolicy] = useState({
-//     vehicleNo: '',
-//     vehiclePrice: '',
-//     vehicleName: '',
-//     idv: '',
-//     registrationYear: '',
-//     premiumAmount: '',
-//     customerId: '', // Added customerId to policy details
-//   });
-//   const [customerid,setid]= useState('');
-//   const [paymentid,setpid] = useState('');
-
-//   const invoiceUrl=`http://192.168.1.95:9090/payment/create?paymentid=${paymentid}&customerid=${customerid}`;
-
-//   const [mobileOtp, setMobileOtp] = useState(Array(5).fill(''));
-//   const [mobileOtpa, setMobileOtpa] = useState('');
-//   const [mobileOtpError, setMobileOtpError] = useState('');
-//   const [mobileOtpSuccessMessage, setMobileOtpSuccessMessage] = useState('');
-
-//   const [emailOtp, setEmailOtp] = useState(Array(5).fill(''));
-//   const [emailOtpa, setEmailOtpa] = useState('');
-//   const [emailOtpError, setEmailOtpError] = useState('');
-//   const [emailOtpSuccessMessage, setEmailOtpSuccessMessage] = useState('');
-
-//   const otpRefs = useRef([]);
-//   const emailOtpRefs = useRef([]);
-
-//   const location = useLocation();
-//   const { mobileNumber } = location.state || {};
-
-//   useEffect(() => {
-//     if (mobileNumber) {
-//       getCustomerDetails(mobileNumber);
-//     }
-//   }, [mobileNumber]);
-
-//   useEffect(() => {
-//     if (customerid) {
-//       getProfileDetails(customerid);
-//     }
-//   }, [customerid]);
-
-//   const getCustomerDetails = async (mobile) => {
-//     try {
-//       const response = await axios.get(`http://192.168.1.95:9090/customer/get/${mobile}`);
-//       if (response.status === 200) {
-//         const customerData = response.data;
-//         setid(response.data.customerid)
-//         setProfile({
-//           name: `${customerData.firstName} ${customerData.lastName}`,
-//           address: customerData.address,
-//           state: customerData.state,
-//           mobile: customerData.mobile,
-//           email: customerData.email,
-//           vehicleNo: customerData.vnumber,
-//         });
-//       } else {
-//         console.log('Failed to get details');
-//       }
-//     } catch (error) {
-//       console.error('Error getting details:', error);
-//     }
-//   };
-
-//   const getProfileDetails = async (customerid) => {
-//     try {
-//       const response = await axios.get(`http://192.168.1.95:9090/payment/fetch/${customerid}`);
-//       if (response.status === 200) {
-//         const profileData = response.data[0];
-//         console.log(response.data);
-//         setpid(response.data[0].paymentid);
-//         setPolicy({
-//           vehicleNo: profileData.vnumber,
-//           vehiclePrice: profileData.vprice,
-//           vehicleName: profileData.vname,
-//           idv: profileData.idv,
-//           registrationYear: profileData.vyear,
-//           premiumAmount: profileData.premiumAmount,
-//           customerId: profileData.customerid, // Updated to include customerId
-//         });
-//       } else {
-//         console.log('Failed to get details');
-//       }
-//     } catch (error) {
-//       console.error('Error getting details:', error);
-//     }
-//   };
-
-//   const handleSendMobileOTP = async () => {
-//     if (/^[6-9]\d{9}$/.test(profile.mobile)) {
-//       try {
-//         const response = await axios.get('http://192.168.1.95:9090/vehicle/sendOtp', {
-//           params: { mobile: profile.mobile },
-//         });
-
-//         if (response.status === 200) {
-//           setMobileOtpa(response.data);
-//           setMobileOtpError('');
-//           setMobileOtpSuccessMessage('OTP sent successfully!');
-//         } else {
-//           setMobileOtpError('Failed to send OTP');
-//         }
-//       } catch (error) {
-//         setMobileOtpError('Error sending OTP');
-//       }
-//     } else {
-//       setMobileOtpError('Please enter a valid mobile number');
-//     }
-//   };
-
-//   const handleSendEmailOTP = async () => {
-//     if (/^[a-z0-9._%+-]+@gmail\.com$/.test(profile.email)) {
-//       try {
-//         const response = await axios.post(`http://192.168.1.95:9090/vehicle/sendEmailOTPforUpdation/${profile.email}`);
-
-//         if (response.status === 200) {
-//           setEmailOtpa(response.data);
-//           setEmailOtpError('');
-//           setEmailOtpSuccessMessage('OTP sent successfully!');
-//         } else {
-//           setEmailOtpError('Failed to send OTP');
-//         }
-//       } catch (error) {
-//         setEmailOtpError('Error sending OTP');
-//       }
-//     } else {
-//       setEmailOtpError('Please enter a valid email address');
-//     }
-//   };
-
-//   const handleOTPChange = (otpType, index, value) => {
-//     if (value.length <= 1) {
-//       if (otpType === 'mobile') {
-//         const newOtp = [...mobileOtp];
-//         newOtp[index] = value;
-//         setMobileOtp(newOtp);
-
-//         if (value && index < otpRefs.current.length - 1) {
-//           otpRefs.current[index + 1].focus();
-//         }
-//       } else if (otpType === 'email') {
-//         const newOtp = [...emailOtp];
-//         newOtp[index] = value;
-//         setEmailOtp(newOtp);
-
-//         if (value && index < emailOtpRefs.current.length - 1) {
-//           emailOtpRefs.current[index + 1].focus();
-//         }
-//       }
-//     }
-//   };
-
-//   const handleVerifyOTP = (otpType) => {
-//     if (otpType === 'mobile') {
-//       const enteredOtp = mobileOtp.join('');
-//       if (enteredOtp === mobileOtpa) {
-//         setMobileOtpError('');
-        
-//         setMobileOtpSuccessMessage('Mobile OTP verified successfully!');
-//         setEditMode({ ...editMode, mobile: true });
-//         setOtpMode({ ...otpMode, mobile: false });
-//       } else {
-//         setMobileOtpError('Invalid OTP');
-//       }
-//     } else if (otpType === 'email') {
-//       const enteredOtp = emailOtp.join('');
-//       if (enteredOtp === emailOtpa) {
-//         setEmailOtpError('');
-//         setEmailOtpSuccessMessage('Email OTP verified successfully!');
-//         setEditMode({ ...editMode, email: true });
-//         setOtpMode({ ...otpMode, email: false });
-//       } else {
-//         setEmailOtpError('Invalid OTP');
-//       }
-//     }
-//   };
-
-//   const handleEdit = (field) => {
-//     setOtpMode({ ...otpMode, [field]: true });
-//     if (field === 'mobile') {
-//       handleSendMobileOTP();
-//     } else if (field === 'email') {
-//       handleSendEmailOTP();
-//     }
-//   };
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setProfile({ ...profile, [name]: value });
-//   };
-
-//   const handleSave = (field) => {
-//     if (field === 'mobile' && !/^[6-9]\d{9}$/.test(profile.mobile)) {
-//       return;
-//     }
-//     if (field === 'email' && !/^[a-z0-9._%+-]+@gmail\.com$/.test(profile.email)) {
-//       return;
-//     }
-//     setEditMode({ ...editMode, [field]: false });
-//   };
-
-
-//   return (
-//     <div className='rp-main'>
-//       <Header1/>
-//       <div className='rp-cd ' style={{ marginTop: '60px' }}>
-//         <div className='row'></div>
-//       </div>
-
-//       <div className='row mt-2 pt-3 reviewpage-1'>
-//         <div className='px-3 col-12 col-md-4'>
-//           <h4 className='profile-heading'> Profile <i className="fa-solid fa-user"></i></h4>
-//           <div className="card rp-card">
-//             <div className="rp-card-body px-5">
-//               <div>
-//                 <div className="profile-item text-nowrap">
-//                   <label>Name &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;:</label> 
-                 
-//                   <span>{profile.name}</span>
-//                 </div>
-//                 <div className="profile-item text-nowrap">
-//                   <label>Address &nbsp; &nbsp; &nbsp; :</label>
-
-//                   <span>{profile.address}</span>
-//                 </div>
-//                 <div className="profile-item text-nowrap">
-//                   <label>State &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; :</label>
-//                   <span>{profile.state}</span>
-//                 </div>
-//                 <div className="profile-item text-nowrap">
-//                   <label>Mobile &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;:</label>
-//                   {editMode.mobile ? (
-//                     <input
-//                       type="text"
-//                       name="mobile"
-//                       value={profile.mobile}
-//                       onChange={handleChange}
-//                     />
-//                   ) : (
-//                     <span>{profile.mobile}</span>
-//                   )}
-//                   {!editMode.mobile && (
-//                     <button onClick={() => handleEdit('mobile')}>
-//                       <i className="fa-solid fa-pen-to-square"></i>
-//                     </button>
-//                   )}
-//                   {editMode.mobile && (
-//                     <button onClick={() => handleSave('mobile')}>
-//                       <i className="fa-solid fa-check"></i>
-//                     </button>
-//                   )}
-//                   {otpMode.mobile && (
-//                     <div className="otp-section">
-//                       <h4>Verify Mobile OTP</h4>
-//                       <div className="otp-inputs">
-//                         {mobileOtp.map((otp, index) => (
-//                           <input
-//                             key={index}
-//                             type="text"
-//                             maxLength="1"
-//                             value={otp}
-//                             onChange={(e) => handleOTPChange('mobile', index, e.target.value)}
-//                             ref={(ref) => (otpRefs.current[index] = ref)}
-//                             className="otp-box"
-//                           />
-//                         ))}
-//                       </div>
-//                       <button onClick={() => handleVerifyOTP('mobile')}>Verify OTP</button>
-//                       {mobileOtpError && <p className="otp-error">{mobileOtpError}</p>}
-//                       {mobileOtpSuccessMessage && <p className="otp-success">{mobileOtpSuccessMessage}</p>}
-//                     </div>
-//                   )}
-//                 </div>
-//                 <div className="profile-item text-nowrap">
-//                   <label>Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
-//                   {editMode.email ? (
-//                     <input
-//                       type="text"
-//                       name="email"
-//                       value={profile.email}
-//                       onChange={handleChange}
-//                     />
-//                   ) : (
-//                     <span>{profile.email}</span>
-//                   )}
-//                   {!editMode.email && (
-//                     <button onClick={() => handleEdit('email')}>
-//                       <i className="fa-solid fa-pen-to-square"></i>
-//                     </button>
-//                   )}
-//                   {editMode.email && (
-//                     <button onClick={() => handleSave('email')}>
-//                       <i className="fa-solid fa-check"></i>
-//                     </button>
-//                   )}
-//                   {otpMode.email && (
-//                     <div className="otp-section">
-//                       <h4>Verify Email OTP</h4>
-//                       <div className="otp-inputs">
-//                         {emailOtp.map((otp, index) => (
-//                           <input
-//                             key={index}
-//                             type="text"
-//                             maxLength="1"
-//                             value={otp}
-//                             onChange={(e) => handleOTPChange('email', index, e.target.value)}
-//                             ref={(ref) => (emailOtpRefs.current[index] = ref)}
-//                             className="otp-box"
-//                           />
-//                         ))}
-//                       </div>
-//                       <button onClick={() => handleVerifyOTP('email') }>Verify OTP </button>
-//                       {emailOtpError && <p className="otp-error">{emailOtpError}</p>}
-//                       {emailOtpSuccessMessage && <p className="otp-success">{emailOtpSuccessMessage}</p>}
-//                     </div>
-//                   )}
-//                 </div>
-//               </div>
-//               {/* <Link to="/" className="back-to-home">
-//                 <ExitToAppIcon /> Back to Home
-//               </Link> */}
-//             </div>
-//           </div>
-//         </div>
-
-//         <div className='px-3 col-12 col-md-8'>
-//           <h4 className='profile-heading'>Vehicle Details <TwoWheelerIcon/> </h4>
-//           <div class="card">
-//             <div class="card-body profile-card d-flex justify-content-between ">
-              
-//             <div className=" text-nowrap">
-//                     <label>Policy Number :</label>
-//                     <span>{policy.vehicleNo}</span>
-//                   </div>
-//                   <div className=" text-nowrap">
-//                     <label>Customer ID : </label>
-//                     <span>{policy.customerId}</span>
-//                   </div>
-//              </div>
-//             </div>
-//           <div className="card rp-card">
-//             <div className="rp-card-body ">
-//               <div className="d-flex flex-column p-3 flex-md-row">
-//                 <div className="col rp-line" style={{ borderRight: '2px solid grey' }}>
-//                   <div className="profile-item text-nowrap">
-//                     <label>Vehicle No &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;:</label>
-//                     <span>{policy.vehicleNo}</span>
-//                   </div>
-//                   <div className="profile-item text-nowrap">
-//                     <label>Vehicle Price&nbsp; &nbsp;&nbsp;&nbsp;:</label>
-//                     <span>{policy.vehiclePrice}</span>
-//                   </div>
-//                   <div className="profile-item text-nowrap">
-//                     <label>Vehicle Name&nbsp; &nbsp;&nbsp;:</label>
-//                     <span>{policy.vehicleName}</span>
-//                   </div>
-//                 </div>
-//                 {/* <div className="col-1 line-divider">
-//                   <div className="divider"></div>
-//                 </div> */}
-//                 <div className="col-7 ms-5">
-//                   <div className="profile-item text-nowrap">
-//                     <label>IDV&nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
-//                     <span>{policy.idv}</span>
-//                   </div>
-//                   <div className="profile-item text-nowrap">
-//                     <label>Registration Year&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
-//                     <span>{policy.registrationYear}</span>
-//                   </div>
-//                   <div className="profile-item text-nowrap">
-//                     <label>Premium Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</label>
-//                     <span>{policy.premiumAmount}</span>
-//                   </div>
-//                 </div>
-//               </div>
-//               <a href={invoiceUrl} class="btn btn-primary" className='invoice-button' >Invoice <i class="fa-solid fa-download"></i></a>
-//               {/* <button className="invoice-button" onClick={handleInvoiceDownload} >  Invoice <i class="fa-solid fa-download"></i></button> */}
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-
-//       <Footer />
-//     </div>
-//   );
-// };
-
-// export default Reviewpage;
-
 import React, { useState, useEffect, useRef } from 'react';
 import Footer1 from './Footer';
 import './Reviewpage.css';
-import { Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import TwoWheelerIcon from '@mui/icons-material/TwoWheeler';
-
-
-import Header from './Header1';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import fileDownload from "js-file-download";
+import p3 from '../images/ramanasoftlogo.jpg';
+import { ClickAwayListener, Tooltip } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PhoneIcon from '@mui/icons-material/Phone';
+import Button from '@mui/material/Button';
+import VehicleInsuranceService from './service/VehicleInsuranceService';
+
+
 
 const ReviewPage = () => {
   const [editMode, setEditMode] = useState({ mobile: false, email: false });
@@ -431,9 +24,6 @@ const ReviewPage = () => {
   });
   const [policy, setPolicy] = useState([]);
   const [customerid, setid] = useState('');
-  const [paymentid, setpid] = useState('');
-
-  //const invoiceUrl = `http://192.168.1.47:9090/payment/create?paymentid=${paymentid}&customerid=${customerid}`;
 
   const [mobileOtp, setMobileOtp] = useState(Array(5).fill(''));
   const [mobileOtpa, setMobileOtpa] = useState('');
@@ -465,7 +55,7 @@ const ReviewPage = () => {
 
   const getCustomerDetails = async (mobile) => {
     try {
-      const response = await axios.get(`http://192.168.1.200:9090/customer/get/${mobile}`);
+      const response = await VehicleInsuranceService.getCustomerDetailsByMobile(mobile);
       if (response.status === 200) {
         const customerData = response.data;
         setid(response.data.customerid);
@@ -487,11 +77,10 @@ const ReviewPage = () => {
 
   const getProfileDetails = async (customerid) => {
     try {
-      const response = await axios.get(`http://192.168.1.200:9090/payment/fetch/${customerid}`);
+      const response = await VehicleInsuranceService.getPaymentDetailsByCustomerId(customerid);
       if (response.status === 200) {
         const profileData = response.data;
         console.log(response.data);
-        setpid(response.data.paymentid);
         setPolicy(response.data)
       } else {
         console.log('Failed to get details');
@@ -504,9 +93,7 @@ const ReviewPage = () => {
   const handleSendMobileOTP = async () => {
     if (/^[6-9]\d{9}$/.test(profile.mobile)) {
       try {
-        const response = await axios.get(`http://192.168.1.200:9090/vehicle/sendOtp`, {
-          params: { mobile: profile.mobile },
-        });
+        const response = await VehicleInsuranceService.sendMobileOtp(profile.mobile);
         console.log('mobile otp received', response.data);
         if (response.status === 200) {
           setMobileOtpa(response.data);
@@ -514,13 +101,13 @@ const ReviewPage = () => {
           setMobileOtpSuccessMessage('OTP sent successfully!');
           setOtpMode({ ...otpMode, mobile: true });
         } else {
-          setMobileOtpError('Failed to send OTP');
+          setMobileOtpError('Please enter a valid mobile number');
         }
       } catch (error) {
         setMobileOtpError('Error sending OTP');
       }
     } else {
-      setMobileOtpError('Please enter a valid mobile number');
+      setMobileOtpError('Failed to send OTP');
     }
   };
 
@@ -528,7 +115,7 @@ const ReviewPage = () => {
     if (/^[a-z0-9._%+-]+@gmail\.com$/.test(profile.email)) {
 
       try {
-        const response = await axios.post(`http://192.168.1.200:9090/vehicle/sendEmailOTPforUpdation/${profile.email}`);
+        const response = await VehicleInsuranceService.sendEmailOtpForUpdation(profile.email);
         console.log('email otp received', response.data);
         if (response.status === 200) {
           setEmailOtpa(response.data);
@@ -577,7 +164,7 @@ const ReviewPage = () => {
         setEditMode({ ...editMode, mobile: false });
         setOtpMode({ ...otpMode, mobile: false });
         try {
-          const response = await axios.put(`http://192.168.1.200:9090/customer/updatemobile/${customerid}/${profile.mobile}`);
+          const response = await VehicleInsuranceService.updateCustomerMobileNumber(customerid,profile.mobile);
           console.log(response.data);
           if (response.status === 200) {
             console.log('sucess in changing mobile number');
@@ -598,7 +185,7 @@ const ReviewPage = () => {
         setEditMode({ ...editMode, email: false });
         setOtpMode({ ...otpMode, email: false });
         try {
-          const response = await axios.put(`http://192.168.1.200:9090/customer/updateemail/${customerid}/${profile.email}`);
+          const response = await VehicleInsuranceService.updateCustomerEmailNumber(customerid,profile.email); 
           console.log(response.data);
           if (response.status === 200) {
             console.log('sucess in changing email');
@@ -640,10 +227,85 @@ const ReviewPage = () => {
       handleSendEmailOTP();
     }
   };
+  
+    let navigate = useNavigate();
+    const [click, setClick ]=useState(false);
+    var i = 1;
+    console.log(click)
+    const handleClick = () => {
+      navigate("/admin");
+    };
+  
+    const handleNewPolicyClick = (e) => {
+      e.preventDefault();
+      
+      // Set the click state and use a callback to navigate after the state is updated
+      setClick(true);
+      navigate("/1", { state: { click: true, i, customerid } });
+    };
+    
+  
+    const [open, setOpen] = useState(false);
+  
+    const handleTooltipClose = () => {
+      setOpen(false);
+    };
+  
+    const handleTooltipOpen = () => {
+      setOpen(true);
+    };
 
   return (
     <div className='rp-main'>
-      <Header />
+        <div className='text-center'>
+      <header>
+        <div className="d-flex justify-content-between align-items-center py-2 rounded fixed" style={{ background: '#f0f8ff' }}>
+          <Link to='/'><div>
+              <img
+                className="mx-3 ramana"
+                src={p3}
+                alt="RamanaSoft Insurance"
+                title='RamanaSoft Insurance'
+                style={{ borderRadius: '10px', cursor: 'pointer' }}
+                onClick={handleClick}
+              />
+            </div></Link>
+
+          <div className="ms-auto me-3">
+            <ClickAwayListener onClickAway={handleTooltipClose}>
+              <div>
+                <Tooltip
+                  PopperProps={{
+                      disablePortal: true,
+                      }}
+                  onClose={handleTooltipClose}
+                  open={open}
+                  disableFocusListener
+                  disableHoverListener
+                  disableTouchListener
+                  title="1800-143-123"
+                >
+                  <Button onClick={handleTooltipOpen} className='text-center fw-semibold me-4'>
+                    Call Us &nbsp;<PhoneIcon />
+                  </Button>
+                </Tooltip>
+                <button 
+                  className='mx-5 mt-1 btn btn-link fw-semibold text-decoration-none pnewpolicy' 
+                  onClick={handleNewPolicyClick}
+                >
+                  Get new policy
+                </button>
+                <Link to='/'>
+                  <button type="button" className="btn btn-danger fw-semibold mt-1">
+                    Log-out <LogoutIcon/>
+                  </button>
+                </Link>
+              </div>
+            </ClickAwayListener>
+          </div>
+        </div>
+      </header>
+    </div>
       <div className='rp-cd ' style={{ marginTop: '60px' }}>
         <div className='row'></div>
       </div>
@@ -674,6 +336,7 @@ const ReviewPage = () => {
                       name="mobile"
                       value={profile.mobile}
                       onChange={handleChange}
+                      maxLength="10"
                       id='mobile-field'
                       placeholder='Enter Mobile'
                       onKeyPress={(e) => {
@@ -688,7 +351,7 @@ const ReviewPage = () => {
                 ) : (
                   <>
                     <span>{profile.mobile}</span>
-                    <button className="btn btn-sm btn-primary mx-2 " onClick={() => handleEdit('mobile')} >Edit</button>
+                    <button className="btn btn-sm btn-primary mx-2" onClick={() => handleEdit('mobile')} >Edit</button>
                   </>
                 )}
               </div>
@@ -783,14 +446,16 @@ const ReviewPage = () => {
                         </div>
                         <div className="profile-item text-nowrap">
                           <label>Vehicle Price&nbsp; &nbsp;&nbsp;&nbsp;:&nbsp;</label>
-                          <span>{items.vprice
-                          }</span>
+                          <span>{items.vprice}</span>
                         </div>
                         <div className="profile-item text-nowrap">
                           <label>Vehicle Name&nbsp; &nbsp;&nbsp;:&nbsp;</label>
-                          <span>{items.vname
-                          }</span>
+                          <span>{items.vname}</span>
                         </div>
+                        <div className="profile-item text-nowrap">
+                          <label>Start Date&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;:&nbsp;</label>
+                          <span>{items.startdate}</span>
+                        </div> 
                       </div>
                       <div className="col-1 line-divider">
                         <div className="divider"></div>
@@ -808,16 +473,22 @@ const ReviewPage = () => {
                           <label>Premium Amount&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</label>
                           <span>{items.premiumAmount}</span>
                         </div>
+                        <div className="profile-item text-nowrap">
+                          <label>End Date&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;:&nbsp;</label>
+                          <span>{items.enddate  }</span>
+                        </div>
                       </div>
                     </div>
-                    <a href={`http://192.168.1.200:9090/payment/create?paymentid=${items.paymentid}&customerid=${customerid}`} class="btn btn-primary" className='rp-invoice' >Invoice <i class="fa-solid fa-download"></i></a>
-                    {/* <button className="invoice-button" onClick={handleInvoiceDownload} >  Invoice <i class="fa-solid fa-download"></i></button> */}
+                    <button type="button" disabled class="btn btn-primary">Renewal</button>
+
+                    <a href={`http://192.168.1.200:9090/payment/create?paymentid=${items.paymentid}&customerid=${customerid}`} class="btn btn-primary" className='rp-invoice' download={"invoice"}>Invoice <i class="fa-solid fa-download"></i></a>
+                    
                   </div>
                 </div>
               </div>
 
-))
-}
+               ))
+               }
 
       </div>
       </div>
@@ -825,5 +496,6 @@ const ReviewPage = () => {
 </div>
       );
 };
+
 
       export default ReviewPage;

@@ -8,7 +8,8 @@ import Login from './Components/Login'
 import PaymentSuccessPage from './Components/PaymentSuccessPage'
 import UserLogin from './Components/UserLogin'
 import Reviewpage from './Components/Reviewpage'
-
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-bootstrap'
 export default function App() {
   return (
     <>
@@ -23,7 +24,7 @@ export default function App() {
         <Route path='/login' element={<UserLogin/>} />
         <Route path='/review' element={<Reviewpage/>} />
       </Routes>
-
+      <ToastContainer autoClose={5000}/>
     </>
   )
 }

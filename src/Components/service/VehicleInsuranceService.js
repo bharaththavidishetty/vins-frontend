@@ -1,30 +1,94 @@
 
 import axios from "axios";
 
-const vurl = `http://192.168.1.56/vehicle`;
-const curl = `http://192.168.1.56/customer`;
-const purl = `http://192.168.1.56/profile`;
-
+const url = "http://192.168.1.53:9090";
 
 
 class VehicleInsuranceService {
+    
 
-    static createCustomer(feilds){
-        const INSURANCE_API_BASE_URL = "http://192.168.1.2:9092/customer/add";
-        return axios.post(INSURANCE_API_BASE_URL, feilds);
-    }
-
-    static createPayment(feilds){
-        const INSURANCE_API_BASE_URL = "http://192.168.1.2:9092/payment/add";
-        return axios.post(INSURANCE_API_BASE_URL, feilds);
-    }
-
-
+    //bikeentry.js
     static getVehicleDetails(vnumber){
-        const INSURANCE_API_BASE_URL = "http://192.168.1.200:9090/vehicle/get/"+vnumber;
+        const INSURANCE_API_BASE_URL = url+"/vehicle/get/"+vnumber;
+        return axios.get(INSURANCE_API_BASE_URL);
+    }
+
+    //bikeentry.js
+    static checkPolicyStatus(vnumber){
+        const INSURANCE_API_BASE_URL = url+"/payment/fetchPolocyByVnumber/"+vnumber;
         return axios.get(INSURANCE_API_BASE_URL);
     }
   
+    //secondpage.js pamentpage.js reviewpage.js
+    static getCustomerDetailsByMobile(mobile){
+        const INSURANCE_API_BASE_URL = url+"/customer/get/"+mobile;
+        return axios.get(INSURANCE_API_BASE_URL);
+    }
+
+    //secondpage.js
+    static getCustomerDetailsByEmail(email){
+        const INSURANCE_API_BASE_URL = url+"/customer/getByEmail/"+email;
+        return axios.get(INSURANCE_API_BASE_URL);
+    }
+
+    //secondpage.js
+    static createCustomer(feilds){
+        const INSURANCE_API_BASE_URL = url+"/customer/add";
+        return axios.post(INSURANCE_API_BASE_URL, feilds);
+    }
+
+    
+    // otp's userlogin.js secondpage.js reviewpage.js
+    static sendMobileOtp(mobile){
+        const INSURANCE_API_BASE_URL = url+"/vehicle/sendOtp?mobile="+mobile;
+        return axios.get(INSURANCE_API_BASE_URL);
+    }
+
+ 
+    // otp's secondpage.js 
+    static sendEmailOtpForRegisteration(email){
+        const INSURANCE_API_BASE_URL = url+"/vehicle/sendEmailOtpForRegistration/"+email;
+        return axios.post(INSURANCE_API_BASE_URL);
+    }
+
+    // otp's reviewpage.js
+    static sendEmailOtpForUpdation(email){
+        const INSURANCE_API_BASE_URL = url+"/vehicle/sendEmailOtpForUpdation/"+email;
+        return axios.post(INSURANCE_API_BASE_URL);
+    }
+
+    //thirdpage.js 
+    static getQuoteData(price,vyear){
+        const INSURANCE_API_BASE_URL = url+"/vehicle/calculate?price="+price+"&vyear="+vyear;
+        return axios.get(INSURANCE_API_BASE_URL);
+    }
+
+    static sendEmailQuote(toEmail,vnumber,price,idv,premiumAmount){
+        const INSURANCE_API_BASE_URL = url+"/vehicle/sendEmail?toEmail="+toEmail+"&vnumber="+vnumber+"&price="+price+"&idv="+idv+"&premiumAmount="+premiumAmount;
+        return axios.post(INSURANCE_API_BASE_URL);
+    }
+
+    //pament.js 
+    static createPayment(feilds){
+        const INSURANCE_API_BASE_URL = url+"/payment/add";
+        return axios.post(INSURANCE_API_BASE_URL, feilds);
+    }
+
+    static getPaymentDetailsByCustomerId(customerid){
+        const INSURANCE_API_BASE_URL = url+"/payment/fetch/"+customerid;
+        return axios.get(INSURANCE_API_BASE_URL);
+    }
+
+    static updateCustomerMobileNumber(customerid,mobile){
+        const INSURANCE_API_BASE_URL = url+"/customer/updatemobile/"+customerid+"/"+mobile;
+        return axios.put(INSURANCE_API_BASE_URL);
+    }
+
+    static updateCustomerEmailNumber(customerid,email){
+        const INSURANCE_API_BASE_URL = url+"/customer/updateemail/"+customerid+"/"+email;
+        return axios.put(INSURANCE_API_BASE_URL);
+    }
+
 }
 
 export default VehicleInsuranceService

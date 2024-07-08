@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import  './bikeentry.css';
 import img2 from "../images/Bike.jpg"
-import axios from 'axios';
-import {  useNavigate } from 'react-router-dom';
+import {  useLocation, useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import VehicleInsuranceService from './service/VehicleInsuranceService';
@@ -12,6 +11,11 @@ const BikeEntry = () => {
   const [bikeNumber, setBikeNumber] = useState('');
   const [error, setError] = useState('');
   const [err, setErr] = useState('');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const {click,customerid,profile} = location.state || {};
+  console.log(profile);
+  const [veh,setVeh]=useState([]);
 
   const handleBikeNumberChange = (e) => {
     setBikeNumber(e.target.value.toUpperCase());
@@ -23,95 +27,52 @@ const BikeEntry = () => {
     return regex.test(number);
   };
 
-  //const [veh,setVeh]=useState([]);
-
-  const navigate = useNavigate();
-  
 
   const handleSearch = () => {
     if (validateBikeNumber(bikeNumber)) {
       console.log(`Searching for bike number: ${bikeNumber}`);
-
-
-    //   try {
-    //     // First API call to get customer details by email
-    //     const policyResponse =  axios.get(
-    //         `http://192.168.1.29:9090/payment/getCustomerDetailsByMail/${values1.username}`
-    //     );
-
-    //     const data = policyResponse.data;
-    //     setPaymentdetails(data);
-    //     console.log('Payment details:', data);
-
-    //     // Second API call to login
-    //     const loginResponse =  axios.post('http://192.168.1.29:9090/Loginpage/add', values1);
-
-    //     // Handle successful response
-    //     console.log('Response from backend:', loginResponse.data);
-
-    //     if (loginResponse.data === "Login successfully") {
-    //         alert("Login successfully");
-
-    //         // Navigate based on payment details
-    //         if (data.length>0) {
-    //             navigate("/Profile", { state: { values1, paymentDetails: data } });
-    //         } else {
-    //             navigate("/PolicyDetails", { state: {  values1 } });
-    //         }
-    //     } else if (loginResponse.data === "Invalid credentials" || loginResponse.data === "User not found") {
-    //         setloginerror("Invalid username or password");
-    //     } else {
-    //         seterrorvalues("");
-    //     }
-    // } catch (error) {
-    //     console.error('Error during the process:', error);
-    //     setloginerror("An unexpected error occurred. Please try again later.");
-    // } finally {
-    //     setIsLoading(false);
-    // }
-
-    
-    VehicleInsuranceService.getVehicleDetails(bikeNumber)
-    .then(resp=>
-      {
-          //setVeh(resp.data);
-          console.log(resp)
-          if(resp.data)
-            {
-              navigate("/2",{state:{veh:resp.data}});
+  
+      VehicleInsuranceService.checkPolicyStatus(bikeNumber)
+        .then(response => {
+          console.log(response);
+          if (response.data) {
+            setErr('This bike already has an insurance policy. Login to check the details');
+          } else {
+            if (click === true) {
+              VehicleInsuranceService.getVehicleDetails(bikeNumber)
+                .then(resp => {
+                  console.log(resp);
+                  if (resp.data) {
+                    navigate("/3", { state: { veh: resp.data, customerid: customerid, profile: profile } });
+                  } else {
+                    setErr('Vehicle does not exist');
+                  }
+                })
+                .catch(error => {
+                  console.log(error);
+                  setErr('Vehicle does not exist');
+                });
+            } else {
+              VehicleInsuranceService.getVehicleDetails(bikeNumber)
+                .then(resp => {
+                  console.log(resp);
+                  if (resp.data) {
+                    navigate("/2", { state: { veh: resp.data } });
+                  } else {
+                    setErr('Vehicle does not exist');
+                  }
+                })
+                .catch(error => {
+                  console.log(error);
+                  setErr('Vehicle does not exist');
+                });
             }
-            else{
-              setErr('vehicle does not exist');
-            }
-      }
-      )
-      .catch(error=>
-        {
-            console.log(error);
-           setErr('vehicle does not exist');
+          }
         })
-
-
-      // axios.get(`http://192.168.1.47:9090/vehicle/get/${bikeNumber}`)
-      // .then(resp=>
-      // {
-      //     //setVeh(resp.data);
-      //     console.log(resp)
-      //     if(resp.data)
-      //       {
-      //         navigate("/2",{state:{veh:resp.data}});
-      //       }
-      //       else{
-      //         setErr('vehicle does not exist');
-      //       }
-      // }
-      // )
-      // .catch(error=>
-      //   {
-      //       console.log(error);
-      //      setErr('vehicle does not exist');
-      //   })
-      
+        .catch(error => {
+          console.log(error);
+          setErr('Error checking policy status');
+        });
     } else {
       setError('Please enter a valid bike number (e.g. UP15AB1234)');
     }

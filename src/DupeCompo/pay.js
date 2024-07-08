@@ -1,3 +1,116 @@
+// import React, { useState } from 'react';
+// import './PaymentPage.css';
+// import Header from './Header';
+// import Footer from './Footer';
+// import {  useLocation, useNavigate } from 'react-router-dom';
+
+// function PaymentPage() {
+//   const [selectedOption, setSelectedOption] = useState('');
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const{formData,premiumAmount} = location.state;
+  
+  
+
+  
+//   console.log(premiumAmount);
+//   console.log(formData);
+
+//   const handleOptionChange = (event) => {
+//     setSelectedOption(event.target.value);
+//   };
+
+
+
+
+//   const handlePay = () => {
+//     if (selectedOption === 'Razorpay') {
+//       const amount = premiumAmount*100; // Amount in paise (e.g., 1000 paise = ₹10)
+//       const userDetails = {
+//         fullName: 'harimanas',
+//         email: 'harimanas099@gmail.com',
+//         mobile: '7337436756',
+//         propertyflatNbr: '504',
+//         propertyStreet: 'S.R nagar',
+//         propertyPincode: '500038',
+//       };
+
+//       const options = {
+//         key: 'rzp_test_Su4WV4zdBIGTmZ',
+//         key_secret: 'EmH6eToe5CvCfAfgfADREv3C',
+//         amount: amount,
+//         name: 'RS Insurance Company',
+//         description: 'Product/Service Description',
+//         handler: function (response) {
+//           //alert(response.razorpay_payment_id);
+//           navigate('/pay');
+//         },
+
+//         prefill: {
+//           name: userDetails.fullName,
+//           email: userDetails.email,
+//           contact: userDetails.mobile,
+//         },
+//         notes: {
+//           address: `${userDetails.propertyflatNbr}, ${userDetails.propertyStreet}, ${userDetails.propertyPincode}`,
+//         },
+//         theme: {
+//           color: '#F37254',
+//         },
+//       };
+
+//       const razorpay = new window.Razorpay(options);
+//       razorpay.open();
+//     }
+//   };
+
+//   return (
+//     <div className='payment-main'>
+//       <Header />
+//       <h5 className='payment-header'><b>Welcome To The Payment Page</b></h5>
+//       <div className='payment-container'>
+//         <div>Choose Payment Options:</div>
+//         <label>
+//           <input
+//             className='c'
+//             type="radio"
+//             name="paymentOption"
+//             value="Razorpay"
+//             onChange={handleOptionChange}
+//           />
+//           Razorpay
+//         </label>
+
+//         <label>
+//           <input
+//             className='c'
+//             type="radio"
+//             name="paymentOption"
+//             value="UPI"
+//             onChange={handleOptionChange}
+//           />
+//           UPI
+//         </label>
+
+//         <label>
+//           <input
+//             className='c'
+//             type="radio"
+//             name="paymentOption"
+//             value="Other Options"
+//             onChange={handleOptionChange}
+//           />
+//           Other Options
+//         </label>
+//         <button className='submit' onClick={handlePay} disabled={selectedOption !== 'Razorpay'}>Pay</button>
+//       </div>
+//       <Footer />
+//     </div>
+//   );
+// }
+
+// export default PaymentPage;
+
 import React, { useState, useEffect } from 'react';
 import './PaymentPage.css';
 import Header from './Header';
